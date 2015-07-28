@@ -2,26 +2,14 @@ package com.textme.feideng.textmegithubrestapi;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 public class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.MyViewHolder> {
 
@@ -30,11 +18,6 @@ public class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.MyViewHold
 
     private HashMap<String, String> mContents = new HashMap<>();
     private ArrayList<String> repositoryNameStringList = new ArrayList<>();
-
-
-    private static final String contributorsName = "login";
-    private static final String contributorsPicture = "avatar_url";
-    private static final String contributorsProfile = "html_url";
 
     public SimpleAdapter(Context context, HashMap<String, String> contents) {
         mContext = context;
@@ -64,7 +47,6 @@ public class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.MyViewHold
 
     public class MyViewHolder extends RecyclerView.ViewHolder  implements View.OnClickListener{
 
-        GetContributorsInfo getContributorsInfo;
         TextView tv;
 
         public MyViewHolder(View itemView) {
@@ -76,95 +58,10 @@ public class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.MyViewHold
 
         @Override
         public void onClick(View view) {
-//            Intent intent = new Intent(mInflater.getClas, GetContributorsProfile.class);
-//            intent.putExtra("url",mContents.get(repositoryNameStringList.get(getAdapterPosition())));
-
-            //getContributorsInfo = new GetContributorsInfo(view, mContents.get(repositoryNameStringList.get(getAdapterPosition())));
-            //getContributorsInfo.execute();
+            Intent intent = new Intent(view.getContext(), GetContributorsProfile.class);
+            intent.putExtra("url",mContents.get(repositoryNameStringList.get(getAdapterPosition())));
+            view.getContext().startActivity(intent);
         }
-    }
-
-
-    private class GetContributorsInfo extends AsyncTask<Void, Void, Void> {
-
-        private String contributorsURLString;
-        private int contributorsNum;
-        private View viewInfo;
-        private StringBuilder contributorsContents;
-
-        public GetContributorsInfo(View itemView, String urlString) {
-            //viewInfo = itemView.findViewById(R.id.id_contributors).findViewById(R.id.id_linear);
-            viewInfo = itemView;
-            if (!urlString.isEmpty()) {
-                contributorsURLString = urlString;
-            }
-            else {
-                Log.w("SimpleAdapter Async", "empty url");
-                return;
-            }
-            contributorsContents = new StringBuilder();
-        }
-        @Override
-        protected Void doInBackground(Void... voids) {
-            getInfo();
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void results) {
-            TextView sub_tv = (TextView)viewInfo.findViewById(R.id.id_sub_tv);
-            sub_tv.setText(contributorsContents.toString());
-        }
-
-        private void getInfo() {
-            //analyze content of contributors
-            BufferedReader contributorsReader = null;
-            HttpURLConnection contributorsURLConn = null;
-            String content = null;
-            try {
-                URL contributorsURL = new URL(contributorsURLString);
-                contributorsURLConn = (HttpURLConnection) contributorsURL.openConnection();
-                contributorsURLConn.setRequestMethod("GET");
-                contributorsURLConn.connect();
-                if (contributorsURLConn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                    contributorsReader = new BufferedReader(new InputStreamReader(contributorsURLConn.getInputStream()));
-                    StringBuilder builder = new StringBuilder();
-                    String line = null;
-                    while ((line = contributorsReader.readLine()) != null) {
-                        builder.append(line + "\n");
-                    }
-                    content = builder.toString();
-                    JSONArray contributorsJSONArray = null;
-                    try {
-                        contributorsJSONArray = new JSONArray(content);
-                        contributorsNum = contributorsJSONArray.length();
-                        JSONObject contributorsJSONObject;
-                        for (int j = 0; j < contributorsNum; j++) {
-                            contributorsJSONObject = contributorsJSONArray.getJSONObject(j);
-                            contributorsContents.append(contributorsJSONObject.getString(contributorsName) + "\n");
-                            contributorsContents.append(contributorsJSONObject.getString(contributorsPicture) + "\n");
-                            contributorsContents.append(contributorsJSONObject.getString(contributorsProfile) + "\n");
-                            Log.i("",contributorsContents.toString());
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                if (contributorsReader != null) {
-                    try {
-                        contributorsReader.close();
-                        contributorsURLConn.disconnect();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }
-
     }
 }
 

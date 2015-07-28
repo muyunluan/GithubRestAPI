@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -39,6 +38,7 @@ public class GetContributorsProfile extends Activity {
         linearLayout = (LinearLayout)findViewById(R.id.id_linear);
         Intent intent = getIntent();
         urlString = intent.getStringExtra("url");
+        Log.i("intent",urlString);
         getContributorsInfo = new GetContributorsInfo(this, urlString);
         getContributorsInfo.execute();
     }
@@ -73,6 +73,7 @@ public class GetContributorsProfile extends Activity {
         protected void onPostExecute(Void results) {
 
             TextView textView = new TextView(mActivity);
+            Log.i("",contributorsContents.toString());
             textView.setText(contributorsContents.toString());
             linearLayout.addView(textView);
 
@@ -106,7 +107,6 @@ public class GetContributorsProfile extends Activity {
                             contributorsContents.append(contributorsJSONObject.getString(contributorsName) + "\n");
                             contributorsContents.append(contributorsJSONObject.getString(contributorsPicture) + "\n");
                             contributorsContents.append(contributorsJSONObject.getString(contributorsProfile) + "\n");
-                            Log.i("",contributorsContents.toString());
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
