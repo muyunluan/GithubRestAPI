@@ -1,13 +1,13 @@
 package com.textme.feideng.textmegithubrestapi;
 
-import android.content.Context;
+
+import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.support.v7.widget.RecyclerView;
+import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.json.JSONArray;
@@ -19,82 +19,41 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
-public class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.MyViewHolder> {
+public class GetContributorsProfile extends Activity {
 
-    private LayoutInflater mInflater;
-    private Context mContext;
-
-    private HashMap<String, String> mContents = new HashMap<>();
-    private ArrayList<String> repositoryNameStringList = new ArrayList<>();
-
+    private String urlString;
+    private int contributorsNum;
+    private StringBuilder contributorsContents;
+    private LinearLayout linearLayout;
+    GetContributorsInfo getContributorsInfo;
 
     private static final String contributorsName = "login";
     private static final String contributorsPicture = "avatar_url";
     private static final String contributorsProfile = "html_url";
 
-    public SimpleAdapter(Context context, HashMap<String, String> contents) {
-        mContext = context;
-        mContents = contents;
-        for (String key : mContents.keySet()) {
-            repositoryNameStringList.add(key);
-        }
-        mInflater = LayoutInflater.from(mContext);
-    }
-
     @Override
-    public MyViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
-        View view = mInflater.inflate(R.layout.item_single_textview, viewGroup, false);
-        MyViewHolder viewHolder = new MyViewHolder(view);
-        return viewHolder;
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.contributors_info);
+        linearLayout = (LinearLayout)findViewById(R.id.id_linear);
+        Intent intent = getIntent();
+        urlString = intent.getStringExtra("url");
+        getContributorsInfo = new GetContributorsInfo(this, urlString);
+        getContributorsInfo.execute();
     }
 
-    @Override
-    public void onBindViewHolder(MyViewHolder viewHolder, int i) {
-        viewHolder.tv.setText(repositoryNameStringList.get(i));
-    }
-
-    @Override
-    public int getItemCount() {
-        return repositoryNameStringList.size();
-    }
-
-    public class MyViewHolder extends RecyclerView.ViewHolder  implements View.OnClickListener{
-
-        GetContributorsInfo getContributorsInfo;
-        TextView tv;
-
-        public MyViewHolder(View itemView) {
-            super(itemView);
-            tv = (TextView) itemView.findViewById(R.id.id_tv);
-            tv.setClickable(true);
-            tv.setOnClickListener(this);
-        }
-
-        @Override
-        public void onClick(View view) {
-//            Intent intent = new Intent(mInflater.getClas, GetContributorsProfile.class);
-//            intent.putExtra("url",mContents.get(repositoryNameStringList.get(getAdapterPosition())));
-
-            //getContributorsInfo = new GetContributorsInfo(view, mContents.get(repositoryNameStringList.get(getAdapterPosition())));
-            //getContributorsInfo.execute();
-        }
-    }
 
 
     private class GetContributorsInfo extends AsyncTask<Void, Void, Void> {
 
         private String contributorsURLString;
         private int contributorsNum;
-        private View viewInfo;
+        private Activity mActivity;
         private StringBuilder contributorsContents;
 
-        public GetContributorsInfo(View itemView, String urlString) {
-            //viewInfo = itemView.findViewById(R.id.id_contributors).findViewById(R.id.id_linear);
-            viewInfo = itemView;
+        public GetContributorsInfo(Activity activity, String urlString) {
+            mActivity = activity;
             if (!urlString.isEmpty()) {
                 contributorsURLString = urlString;
             }
@@ -112,8 +71,11 @@ public class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.MyViewHold
 
         @Override
         protected void onPostExecute(Void results) {
-            TextView sub_tv = (TextView)viewInfo.findViewById(R.id.id_sub_tv);
-            sub_tv.setText(contributorsContents.toString());
+
+            TextView textView = new TextView(mActivity);
+            textView.setText(contributorsContents.toString());
+            linearLayout.addView(textView);
+
         }
 
         private void getInfo() {
@@ -167,9 +129,3 @@ public class SimpleAdapter extends RecyclerView.Adapter<SimpleAdapter.MyViewHold
 
     }
 }
-
-
-
-
-
-

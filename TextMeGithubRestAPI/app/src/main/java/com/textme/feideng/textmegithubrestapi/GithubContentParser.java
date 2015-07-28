@@ -13,9 +13,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
 
-/**
- * Created by feideng on 7/25/15.
- */
+
 public class GithubContentParser {
 
     private String mURLString;
